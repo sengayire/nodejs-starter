@@ -74,14 +74,39 @@ router.post('/signup', auth.optional, async (req, res /*, next*/) => {
 
 /* GET list route */
 router.get('/list', (req, res, next) => {
-
 	User.findAll().then(users => {
+		
+		return res.status(200).json(
+			JSON.stringify( users.map(user =>{
+				delete user.dataValues.password
+				return user
+			} ) )
+		);
+	})
 
+});
+
+router.get('/profile/:email', (req, res, next) => {
+	const {email} = req.params; 
+	User.findOne({where: {email}}).then(users => {
+		return res.status(200).json(
+			JSON.stringify(users)
+		);
+	})
+});
+
+router.patch('/profile/:email', (req, res, next) => {
+	const {email} = req.params;
+	const {body} = req;
+	User.update(body,{
+		where: {email},
+		returning: true,
+		plain: true
+	}).then(users => {
 		return res.status(200).json(
 			JSON.stringify( users )
 		);
 	})
-
 });
 
 
